@@ -44,6 +44,35 @@ impl Default for Person {
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.len()<=3{
+            return Self::default();
+        }
+
+        let conponents:Vec<&str>=s.split(",").collect();
+
+        for &st in &conponents{
+            println!("{}",st);
+        }
+
+        if conponents.len()!=2{
+            return Self::default();
+        }
+
+        let mut age=0;
+        match conponents[1].parse::<usize>(){
+            Ok(num)=>{
+                age=num;
+            }
+            Err(err)=>{
+                return Self::default();
+            }
+        };
+
+        Self{
+            name:conponents[0].to_string(),
+            age:age
+        }
+
     }
 }
 

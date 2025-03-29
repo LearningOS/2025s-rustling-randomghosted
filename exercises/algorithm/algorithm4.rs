@@ -4,6 +4,7 @@
 */
 
 //I AM NOT DONE
+#[warn(unused_imports)]
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -51,12 +52,71 @@ where
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+          // 处理空树的情况
+          if self.root.is_none() {
+            self.root = Some(Box::new(TreeNode::new(value)));
+            return;
+        }
+
+        // 使用可变引用遍历树
+        let mut current = &mut self.root;
+        loop {
+            match current {
+                Some(ref mut node) => {
+                    match value.cmp(&node.value) {
+                        Ordering::Less => {
+                            // 向左子树移动
+                            current = &mut node.left;
+                        }
+                        Ordering::Greater => {
+                            // 向右子树移动
+                            current = &mut node.right;
+                        }
+                        Ordering::Equal => {
+                            // 根据需求处理重复值（这里直接返回）
+                            return;
+                        }
+                    }
+                }
+                None => {
+                    // 找到插入位置，创建新节点
+                    *current = Some(Box::new(TreeNode::new(value)));
+                    return;
+                }
+            }
+        }
+ 
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        if self.root.is_none(){
+            return false;
+        }
+
+        let mut currentNode=& self.root;
+        loop{
+            match currentNode{
+                Some(ref node)=>{
+                    match value.cmp(&node.value){
+                        Ordering::Less=>{
+                            currentNode=& node.left;
+                        },
+                        Ordering::Greater=>{
+                            currentNode=& node.right;
+                        },
+                        Ordering::Equal=>{
+                            return true;
+                        }
+                    }
+                },
+
+                None=>{
+                    return false;
+                }
+            }
+        }
     }
 }
 
@@ -67,6 +127,11 @@ where
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
         //TODO
+        if(value>=self.value){
+            self.right=Some(Box::new(TreeNode::new(value)));
+        }else{
+            self.left=Some(Box::new(TreeNode::new(value)));
+        }
     }
 }
 

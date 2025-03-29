@@ -74,6 +74,22 @@ impl<T> LinkedList<T> {
     }
 	pub fn reverse(&mut self){
 		// TODO
+        if self.length==0{
+            return;
+        }
+
+        let mut left=0; let mut right=self.length-1;
+        let mut leftNode= self.start.unwrap().as_ptr();
+        let mut rightNode= self.end.unwrap().as_ptr();
+        while left<right{
+            unsafe{
+            std::mem::swap(&mut (*leftNode).val,&mut (*rightNode).val);
+            }
+
+            leftNode= unsafe{(*leftNode).next.unwrap().as_ptr()};
+            rightNode= unsafe{(*rightNode).prev.unwrap().as_ptr()};
+            left+=1; right-=1;
+        }
 	}
 }
 
