@@ -30,6 +30,11 @@ impl Graph for UndirectedGraph {
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (node_a, node_b, weight) = edge;
+        
+        // 调用 trait 默认实现添加两个方向的边
+        <Self as Graph>::add_edge(self, (node_a, node_b, weight));
+        <Self as Graph>::add_edge(self, (node_b, node_a, weight));
     }
 }
 pub trait Graph {
@@ -38,10 +43,23 @@ pub trait Graph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
         //TODO
-		true
+        if self.adjacency_table().contains_key(node){
+            return false;
+        }
+		self.adjacency_table_mutable().insert(node.to_string(),vec![]);
+        true
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (node_a, node_b, weight) = edge;
+        
+        // 添加A->B
+        self.adjacency_table_mutable()
+            .entry(node_a.to_string())
+            .or_default()
+            .push((node_b.to_string(), weight));
+        
+
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
@@ -77,6 +95,7 @@ mod test_undirected_graph {
             (&String::from("b"), &String::from("c"), 10),
             (&String::from("c"), &String::from("b"), 10),
         ];
+
         for edge in expected_edges.iter() {
             assert_eq!(graph.edges().contains(edge), true);
         }

@@ -7,6 +7,7 @@
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
+use std::cmp::Ordering;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -35,7 +36,8 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T:Copy + Ord> LinkedList<T>
+{
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,14 +71,94 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>)-> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut result=Self::new();
+
+        if list_a.length==0{
+            return list_b;
         }
+
+        if list_b.length==0{
+            return list_a;
+        }
+
+        let mut node_a=list_a.start;
+        let mut node_b=list_b.start;
+
+        loop{
+            let mut numLeft:T; let mut numRight:T;
+            let mut nextNodeA:Option<NonNull<Node<T>>>;
+            let mut nextNodeB:Option<NonNull<Node<T>>>;
+            match node_a{
+                Some(ref node)=>{
+                    numLeft=unsafe{(*(node.as_ptr())).val.clone()};
+                    nextNodeA=unsafe{(*(node.as_ptr())).next};
+                },
+                None=>{
+                    break;
+                }
+            };
+            match node_b{
+                Some(ref node)=>{
+                    numRight=unsafe{(*(node.as_ptr())).val.clone()};
+                    nextNodeB=unsafe{(*(node.as_ptr())).next};
+                },
+                None=>{
+                    break;
+                }
+            }
+
+            match numLeft.cmp(&numRight){
+                Ordering::Less=>{
+                    result.add(numLeft);
+                    node_a=nextNodeA;
+                },
+                Ordering::Greater=>{
+                    result.add(numRight);
+                    node_b=nextNodeB;
+                },
+                Ordering::Equal=>{
+                    result.add(numLeft);
+                    result.add(numRight);
+                    node_a=nextNodeA;
+                    node_b=nextNodeB;
+                }
+            }
+
+        }
+
+        match node_a{
+            None=>{
+                loop{
+                    match node_b{
+                        Some(node)=>{
+                            result.add(unsafe{(*node.as_ptr()).val.clone()});
+                            node_b=unsafe{(*node.as_ptr()).next};
+                        },
+                        None=>{
+                            break;
+                        }
+                    }
+                }
+            },
+            _=>{
+                loop{
+                    match node_a{
+                        Some(node)=>{
+                            result.add(unsafe{(*node.as_ptr()).val.clone()});
+                            node_a=unsafe{(*node.as_ptr()).next};
+                        },
+                        _=>{
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        result
 	}
 }
 

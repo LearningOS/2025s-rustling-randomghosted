@@ -38,6 +38,22 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count+=1;
+        self.items.push(value);
+        let mut currentId=self.count;
+        let mut parentId=self.parent_idx(currentId);
+        while parentId!=0{
+            if (self.comparator)(&self.items[parentId], &self.items[currentId]){
+                let inter=&self.items[parentId];
+                self.items[parentId]=self.items[currentId];
+                self.items[currentId]=*inter;
+
+                currentId=parentId;
+                parentId=self.parent_idx(currentId);
+            }else{
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +74,20 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		let leftChild=self.left_child_idx(idx); let rightChild=self.right_child_idx(idx);
+        if leftChild > self.count && rightChild>self.count {
+            return 0;
+        }
+
+        if rightChild<=self.count{
+            if (self.comparator)(&self.items[leftChild], &self.items[rightChild]){
+                return rightChild;
+            }else{
+                return leftChild;
+            }
+        }else{
+            return leftChild;
+        }
     }
 }
 
@@ -85,7 +114,42 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+		if self.count==0{
+            return None;
+        }
+
+        let result=self.items[1];
+        self.count-=1;
+
+        self.items[1]=self.items[self.count];
+        self.items.pop();
+
+        let mut currentId=1;
+
+        while self.children_present(currentId){
+            if self.right_child_idx(currentId)<=self.count{
+                let smallIdx=self.smallest_child_idx(currentId);
+                if (self.comparator)(&self.items[currentId],&self.items[smallIdx]){
+                    let inter=&self.items[currentId];
+                    self.items[currentId]=self.items[smallIdx];
+                    self.items[smallIdx]=*inter;
+
+                    currentId=smallIdx;
+                }else{
+                    break;
+                }
+            }else{
+                if (self.comparator)(&self.items[currentId],&self.items[self.left_child_idx(currentId)]){
+                    let inter=self.items[currentId];
+                    self.items[currentId]=self.items[self.left_child_idx(currentId) as usize];
+                    self.items[self.left_child_idx(currentId)]=inter;
+
+                    currentId=self.left_child_idx(currentId);
+                }
+            }
+        }
+
+        Some(result)
     }
 }
 
@@ -97,7 +161,7 @@ impl MinHeap {
     where
         T: Default + Ord,
     {
-        Heap::new(|a, b| a < b)
+        Heap::new(|a, b| a > b)
     }
 }
 
@@ -109,7 +173,7 @@ impl MaxHeap {
     where
         T: Default + Ord,
     {
-        Heap::new(|a, b| a > b)
+        Heap::new(|a, b| a < b)
     }
 }
 

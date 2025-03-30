@@ -31,6 +31,25 @@ impl Graph {
 		//TODO
 
         let mut visit_order = vec![];
+        let mut queue:VecDeque<usize>=Default::default();
+        queue.push_back(start);
+
+        let mut hashTable:Vec<bool>=vec![false;self.adj.len()];
+
+        while queue.len()!=0{
+            let ele=queue.pop_front().expect("there should has some value");
+            if hashTable[ele]==true{
+                continue;
+            }
+            hashTable[ele]=true;
+            visit_order.push(ele);
+
+            for i in &self.adj[ele]{
+                if hashTable[*i]==false{
+                    queue.push_back(*i);
+                }
+            }
+        }
         visit_order
     }
 }
