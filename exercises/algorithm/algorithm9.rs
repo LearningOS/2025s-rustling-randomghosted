@@ -44,9 +44,10 @@ where
         let mut parentId=self.parent_idx(currentId);
         while parentId!=0{
             if (self.comparator)(&self.items[parentId], &self.items[currentId]){
-                let inter=&self.items[parentId];
-                self.items[parentId]=self.items[currentId];
-                self.items[currentId]=*inter;
+                // let inter=&self.items[parentId];
+                // self.items[parentId]=self.items[currentId];
+                // self.items[currentId]=*inter;
+                self.items.swap(parentId,currentId);
 
                 currentId=parentId;
                 parentId=self.parent_idx(currentId);
@@ -108,7 +109,7 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Copy,
 {
     type Item = T;
 
@@ -118,11 +119,13 @@ where
             return None;
         }
 
-        let result=self.items[1];
-        self.count-=1;
+        let items =&mut self.items;
 
-        self.items[1]=self.items[self.count];
-        self.items.pop();
+        let result=items[1];
+
+        items[1]=items[self.count];
+        items.pop();
+        self.count-=1;
 
         let mut currentId=1;
 
@@ -130,9 +133,10 @@ where
             if self.right_child_idx(currentId)<=self.count{
                 let smallIdx=self.smallest_child_idx(currentId);
                 if (self.comparator)(&self.items[currentId],&self.items[smallIdx]){
-                    let inter=&self.items[currentId];
-                    self.items[currentId]=self.items[smallIdx];
-                    self.items[smallIdx]=*inter;
+                    // let inter=&self.items[currentId];
+                    // self.items[currentId]=self.items[smallIdx];
+                    // self.items[smallIdx]=*inter;
+                    self.items.swap(currentId,smallIdx);
 
                     currentId=smallIdx;
                 }else{
@@ -140,11 +144,15 @@ where
                 }
             }else{
                 if (self.comparator)(&self.items[currentId],&self.items[self.left_child_idx(currentId)]){
-                    let inter=self.items[currentId];
-                    self.items[currentId]=self.items[self.left_child_idx(currentId) as usize];
-                    self.items[self.left_child_idx(currentId)]=inter;
+                    // let inter=self.items[currentId];
+                    // self.items[currentId]=self.items[self.left_child_idx(currentId) as usize];
+                    // self.items[self.left_child_idx(currentId)]=inter;
+                    let leftIdx=self.left_child_idx(currentId);
+                    self.items.swap(currentId,leftIdx);
 
                     currentId=self.left_child_idx(currentId);
+                }else{
+                    break;
                 }
             }
         }

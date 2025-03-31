@@ -36,7 +36,7 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
-impl<T:Copy + Ord> LinkedList<T>
+impl<T> LinkedList<T>
 {
     pub fn new() -> Self {
         Self {
@@ -71,7 +71,10 @@ impl<T:Copy + Ord> LinkedList<T>
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>)-> Self
+}
+
+impl<T:Ord+Copy> LinkedList<T>{
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>)-> Self
 	{
 		//TODO
         let mut result=Self::new();
@@ -160,6 +163,7 @@ impl<T:Copy + Ord> LinkedList<T>
         
         result
 	}
+
 }
 
 impl<T> Display for LinkedList<T>

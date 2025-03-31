@@ -30,11 +30,21 @@ impl Graph for UndirectedGraph {
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        // let (node_a, node_b, weight) = edge;
+        // // 调用 trait 默认实现添加两个方向的边
+        // <Self as Graph>::add_edge(self, (node_a, node_b, weight));
+        // <Self as Graph>::add_edge(self, (node_b, node_a, weight));
         let (node_a, node_b, weight) = edge;
         
-        // 调用 trait 默认实现添加两个方向的边
-        <Self as Graph>::add_edge(self, (node_a, node_b, weight));
-        <Self as Graph>::add_edge(self, (node_b, node_a, weight));
+        self.adjacency_table_mutable()
+            .entry(node_a.to_string())
+            .or_default()
+            .push((node_b.to_string(), weight));
+
+        self.adjacency_table_mutable()
+            .entry(node_b.to_string())
+            .or_default()
+            .push((node_a.to_string(), weight));
     }
 }
 pub trait Graph {
@@ -49,18 +59,8 @@ pub trait Graph {
 		self.adjacency_table_mutable().insert(node.to_string(),vec![]);
         true
     }
-    fn add_edge(&mut self, edge: (&str, &str, i32)) {
+    fn add_edge(&mut self, edge: (&str, &str, i32));
         //TODO
-        let (node_a, node_b, weight) = edge;
-        
-        // 添加A->B
-        self.adjacency_table_mutable()
-            .entry(node_a.to_string())
-            .or_default()
-            .push((node_b.to_string(), weight));
-        
-
-    }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
     }
@@ -72,6 +72,7 @@ pub trait Graph {
         for (from_node, from_node_neighbours) in self.adjacency_table() {
             for (to_node, weight) in from_node_neighbours {
                 edges.push((from_node, to_node, *weight));
+                // println!("{}->{},{}",from_node,to_node,*weight);
             }
         }
         edges

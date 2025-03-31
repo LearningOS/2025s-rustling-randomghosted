@@ -4,9 +4,50 @@
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
 // I AM NOT DONE
-
-fn sort<T>(array: &mut [T]){
+use std::cmp::Ordering;
+// use rand::Rng;
+fn sort<T:Ord+Copy>(array: &mut [T]){
 	//TODO
+    if array.len()<=1{
+        return;
+    }
+
+    let (leftBound,rightBound)=partition(array,0,array.len()-1);
+    let len=&mut array.len();
+    sort(&mut array[0..leftBound]);
+    sort(&mut array[rightBound+1..(*len as usize)]);
+}
+
+fn partition<T:Ord+Copy>(array:&mut [T], left:usize, right:usize)->(usize,usize){
+    // let mut rng=rand::thread_rng();
+    // let random=rng.gen_range(left..=right);
+
+    let pivot=array[left];
+
+    let mut leftBound=left; let mut rightBound=right;
+    let mut i=left;
+    loop{
+        match array[i].cmp(&pivot){
+            Ordering::Less=>{
+                array.swap(leftBound,i);
+                leftBound+=1;
+                i+=1;
+            },
+            Ordering::Greater=>{
+                array.swap(rightBound,i);
+                rightBound-=1;
+            },
+            Ordering::Equal=>{
+                i+=1;
+            }
+        }
+
+        if i==rightBound+1{
+            break;
+        }
+    }
+
+    (leftBound,rightBound)
 }
 #[cfg(test)]
 mod tests {
